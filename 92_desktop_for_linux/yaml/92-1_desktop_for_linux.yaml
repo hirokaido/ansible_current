@@ -6,9 +6,9 @@
   become: yes
 #
   tasks:
-    - name: Include parameter from common.yaml
-      include_vars:
-        file: ./common.yaml
+#    - name: Include parameter from common.yaml
+#      include_vars:
+#        file: ./common.yaml
 ##############################################################
     - name: All Package update
       ansible.builtin.apt:
