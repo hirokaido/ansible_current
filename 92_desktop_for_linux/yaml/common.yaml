@@ -1,0 +1,6 @@
+# 共通利用フォルダ
+group_vars: "../group_vars/"
+linux_dir: "../group_vars/linux/"
+windows_dir: "../group_vars/windows/"
+
+
