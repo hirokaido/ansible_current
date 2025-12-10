@@ -1,0 +1,75 @@
+#----------
+name: Run Platform-Specific Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-linux:
+    name: Linux Tests
+    runs-on: [self-hosted, Linux]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # フル履歴取得して git diff が使えるように
+
+      - name: Make test file sorting script executable
+        run: chmod +x ./scripts/get_test_files.sh
+
+      - name: Run Linux test file sorting
+        run: ./scripts/get_test_files.sh linux
+
+      - name: Run Linux tests
+        run: |
+          if [ -s linux_tests.txt ]; then
+            while read -r file; do
+              echo "Running: $file"
+              pipx run pytest "$file" -v || {
+                code=$?
+                if [ "$code" -eq 5 ]; then
+                  echo "No tests found in $file (not an error)"
+                else
+                  exit $code
+                fi
+              }
+            done < linux_tests.txt
+          else
+            echo "No Linux tests to run"
+          fi
+
+  test-windows:
+    name: Windows Tests
+    runs-on: [self-hosted, Windows]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 同様にフル履歴取得
+
+      - name: Ensure pytest installed
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Ensure pywin32 installed
+        run: python -m pip install pywin32
+
+      - name: Run Windows test file sorting
+        run: .\scripts\get_test_files.ps1 -Target windows
+
+      - name: Run Windows tests
+        if: success()
+        run: |
+          $file = ".\windows_tests.txt"
+          if ((Test-Path $file) -and ((Get-Content $file).Length -gt 0)) {
+              Get-Content $file | ForEach-Object {
+                  pytest $_ -v
+              }
+          } else {
+              Write-Host "No Windows tests to run"
+          }
+        shell: powershell
