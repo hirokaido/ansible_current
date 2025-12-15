@@ -1,0 +1,42 @@
+---
+- name: Gnome Desktop Setup for Ubuntu
+  hosts: all
+  gather_facts: false
+  become: yes
+#
+  tasks:
+    - name: Include parameter from common.yaml
+      include_vars:
+        file: ./common.yaml
+##############################################################
+    - name: Install tools
+      ansible.builtin.apt:
+        name:
+          - ufw			# for firewall setting
+          - net-tools		# for ifconfig command
+          - curl		# for install any application
+          - tcpdump		# for analyze tcp stream
+          - auditd		# for check audit log
+          - nfs-common		# for nfs mount
+          - expect		# for automatic setup
+          - net-tools		# for ip address check
+        state: present
+##############################################################
+    - name: Install gedit
+      ansible.builtin.apt:
+        name: gedit
+        state: present
+##############################################################
+# タイムゾーンを日本（Asia/Tokyo）に設定
+    - name: Set timezone to Asia/Tokyo
+      community.general.timezone:
+        name: Asia/Tokyo
+##############################################################
+    - name: Install Desktop Icons NG
+      apt:
+        name: gnome-shell-extension-desktop-icons-ng
+        state: present
+###################
+# End of Yaml     #
+###################
+
