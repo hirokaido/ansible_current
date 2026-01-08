@@ -36,6 +36,13 @@
       apt:
         name: gnome-shell-extension-desktop-icons-ng
         state: present
+# --------------------------------------------------------------------------
+# meld install
+# --------------------------------------------------------------------------
+    - name: Install meld
+      ansible.builtin.apt:
+        name: meld
+        state: present
 ###################
 # End of Yaml     #
 ###################
