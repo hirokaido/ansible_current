@@ -106,6 +106,13 @@
       ansible.builtin.service:
         name: qemu-guest-agent
         state: started
+# --------------------------------------------------------------------------
+# meld install
+# --------------------------------------------------------------------------
+    - name: Install meld
+      ansible.builtin.apt:
+        name: meld
+        state: present
 ###################
 # End of Yaml     #
 ###################
