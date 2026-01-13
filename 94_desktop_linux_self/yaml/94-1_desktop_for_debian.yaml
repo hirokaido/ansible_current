@@ -3,6 +3,11 @@
   hosts: all
   gather_facts: false
   become: yes
+##############################################################
+#
+  vars:
+    nfs_server_path: "192.168.122.1:/mnt/sda3/common"  # NFSサーバーのIPとパス
+    mount_point: "/mnt/common"
 #
   tasks:
     - name: Include parameter from common.yaml
@@ -43,6 +48,27 @@
       ansible.builtin.apt:
         name: meld
         state: present
+##############################################################
+    - name: Install nfs-common package
+      ansible.builtin.apt:
+        name: nfs-common
+        state: present
+        update_cache: yes
+
+    - name: Ensure the mount directory exists
+      ansible.builtin.file:
+        path: "{{ mount_point }}"
+        state: directory
+        mode: '0755'
+
+    - name: Configure /etc/fstab and mount NFS share
+      ansible.posix.mount:
+        path: "{{ mount_point }}"
+        src: "{{ nfs_server_path }}"
+        fstype: nfs
+        opts: "defaults,_netdev"  # _netdev はネットワーク起動後にマウントする指定
+        state: mounted            # fstabに追記し、即座にマウントする
+##############################################################
 ###################
 # End of Yaml     #
 ###################
